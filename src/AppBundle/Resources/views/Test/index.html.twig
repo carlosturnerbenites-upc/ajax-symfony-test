@@ -1,0 +1,95 @@
+{% extends "::base.html.twig" %}
+
+{% block title %}AppBundle:Test:index{% endblock %}
+
+{% block body %}
+  <select id="departamento"></select>
+  <select id="municipio"></select>
+{% endblock %}
+
+{% block javascripts %}
+  <script>
+
+  /**
+    * Agrear options a Select de departamentos
+    */
+  function refrescarDepartamentos (departamentos) {
+
+    // obtener select
+    var select = $("#departamento")
+
+    // vaciar
+    select.empty()
+
+    // llenar
+    departamentos.forEach(departamento => {
+      select.append($("<option />").val(departamento.id).text(departamento.nombre));
+    })
+  }
+
+  /**
+    * Agrear options a Select de minucipios
+    */
+  function mostrarMonucipios (municipios) {
+
+    // obtener select
+    var select = $("#municipio")
+
+    // vaciar
+    select.empty()
+
+    // llenar
+    municipios.forEach(municipio => {
+      select.append($("<option />").val(municipio.id).text(municipio.nombre));
+    })
+  }
+
+  /**
+    * Inicializar
+    */
+  function iniciar () {
+
+    // obtener select de departamentos
+    var select = $("#departamento")
+
+    // agregar escuchador de cambios a Select de departamentos
+    select.change(function (el) {
+      obtenerMinucipios(this.value, mostrarMonucipios)
+    })
+
+    // obtener departemantos
+    obtenerDepartamentos(refrescarDepartamentos)
+  }
+
+  /**
+    * obtener departamentos: peticion ajax al servidor
+    @param Function callback: funcion a ejecutar cuando se obtengan los departamentos
+  */
+  function obtenerDepartamentos (callback) {
+    $.ajax({url: "/departamentos"})
+      .done(function( data ) {
+        callback(data.items)
+      });
+  }
+
+  /**
+    * obtener municipios por departamento: peticion ajax al servidor
+    @param Function callback: funcion a ejecutar cuando se obtengan los municipios
+  */
+  function obtenerMinucipios (departamento_id, callback) {
+    $.ajax({
+      url: "/municipios",
+      data: {
+        departamento_id: departamento_id
+      }
+    })
+      .done(function( data ) {
+        callback(data.items)
+      });
+  }
+
+  // inicializar
+  iniciar()
+
+  </script>
+{% endblock %}
